@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SCP: Main Site Control Unit</title>
+    <style>
+      body {
+        font-family: Consolas, "Courier New", monospace;
+        background-color: #000000;
+        color: white;
+        padding: 20px;
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 1px solid gold;
+      }
+
+      .header {
+        background-color: gold;
+        color: #000000;
+        border: 1px solid gold;
+        margin-bottom: 24px;
+        margin-top: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 9px 580px;
+        font-size: 1.3em;
+        text-align: center;
+        max-width: 600px;
+      }
+
+      .container {
+        display: flex;
+        gap: 120px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .box {
+        border: 1px solid gold;
+        padding: 20px;
+        width: 400px;
+        background-color: #0f0f0f;
+      }
+
+      button {
+        padding: 10px 20px;
+        margin: 5px 0;
+        background-color: gold;
+        color: rgb(0, 0, 0);
+        border: 3px solid rgb(180, 154, 11);
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: rgb(186, 160, 9);
+      }
+
+      input {
+        width: 65%;
+        padding: 12px;
+        margin: 8px 0;
+        background-color: #0f0f0f;
+        color: rgb(255, 255, 255);
+        border: 1px solid gold;
+      }
+
+      .parking-system {
+        display: flex;
+        flex-direction: column;
+        gap: 80px;
+        color: black;
+      }
+
+      .parking-lot {
+        display: none;
+        grid-template-columns: repeat(4, 90px);
+        grid-template-rows: repeat(2, 140px);
+        gap: 20px;
+        border: 2px solid gold;
+        padding: 30px 120px 30px 30px;
+        background-color: #0f0f0f;
+        color: rgb(255, 255, 255);
+        position: relative;
+      }
+
+      .parking-lot.active {
+        display: grid;
+      }
+
+      .slot {
+        width: 100%;
+        height: 130px;
+        border: 2px solid rgb(255, 255, 255);
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        font-weight: bold;
+        font-size: 17px;
+        background-image: url("/static/greencar.png");
+        background-color: green; /* warna hijau sebagai kondisi dasar (empty) */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center top;
+        color: white;
+        padding-bottom: 4px;
+      }
+
+      .occupied {
+        background-image: url("/static/redcar.png");
+        background-color: red;
+      }
+
+      .floor-level {
+        display: flex;
+        gap: 20px;
+        border: 1px solid gold;
+        padding: 20px;
+        align-items: center;
+        text-align: center;
+        background-color: #0f0f0f;
+        color: rgb(255, 255, 255);
+      }
+
+      .floors {
+        display: flex;
+        gap: 10px;
+      }
+
+      .fl {
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 20px;
+        padding: 10%;
+        cursor: pointer;
+        background-color: #111;
+        color: white;
+      }
+
+      .fl:hover {
+        transform: scale(1.05);
+        transition: 0.3s ease-in-out;
+        background-color: #555;
+      }
+
+      .divider-vertical,
+      .divider-horizontal {
+        position: absolute;
+        background-color: rgb(255, 255, 255);
+      }
+
+      .divider-vertical {
+        width: 2px;
+        height: calc(100% - 60px);
+        top: 30px;
+      }
+
+      .divider-horizontal {
+        height: 2px;
+        width: calc(100% - 100px);
+        left: 30px;
+      }
+
+      .v1 {
+        left: 132px;
+      }
+      .v2 {
+        left: 242px;
+      }
+      .v3 {
+        left: 352px;
+      }
+      .h1 {
+        top: 177px;
+      }
+
+      .floor_name {
+        position: absolute;
+        top: 50%;
+        right: 50px;
+        transform: translate(50%, -50%);
+        width: 60px;
+        height: 60px;
+        background-color: #0f0f0f;
+        border: 2px solid rgba(255, 217, 0, 0.495);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      h2.title {
+        text-align: center;
+        color: white;
+      }
+
+      .slot {
+        width: 100%;
+        height: 130px;
+        border: 2px solid rgb(255, 255, 255);
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        font-weight: bold;
+        font-size: 17px;
+        background-image: url("/static/greencar.png");
+        background-color: green; /* warna hijau sebagai kondisi dasar (empty) */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center top;
+        color: white;
+        padding-bottom: 4px;
+      }
+
+      .occupied {
+        background-image: url("/static/redcar.png");
+        background-color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">MAIN SITE CONTROL UNIT</div>
+    <div class="container">
+      <div class="parking-system">
+        <!-- Parking Lots -->
+        <div class="parking-lot" id="lot-G">
+          <div class="slot" id="slot-g1">G1</div>
+          <div class="slot" id="slot-g2">G2</div>
+          <div class="slot" id="slot-g3">G3</div>
+          <div class="slot" id="slot-g3">G4</div>
+          <div class="slot" id="slot-g5">G5</div>
+          <div class="slot" id="slot-g6">G6</div>
+          <div class="slot" id="slot-g7">G7</div>
+          <div class="slot" id="slot-g8">G8</div>
+          <div class="divider-vertical v1"></div>
+          <div class="divider-vertical v2"></div>
+          <div class="divider-vertical v3"></div>
+          <div class="divider-horizontal h1"></div>
+          <div class="floor_name">G</div>
+        </div>
+
+        <div class="parking-lot" id="lot-F1">
+          <div class="slot">F1-1</div>
+          <div class="slot">F1-2</div>
+          <div class="slot">F1-3</div>
+          <div class="slot">F1-4</div>
+          <div class="slot">F1-5</div>
+          <div class="slot">F1-6</div>
+          <div class="slot">F1-7</div>
+          <div class="slot">F1-8</div>
+          <div class="divider-vertical v1"></div>
+          <div class="divider-vertical v2"></div>
+          <div class="divider-vertical v3"></div>
+          <div class="divider-horizontal h1"></div>
+          <div class="floor_name">F1</div>
+        </div>
+
+        <div class="parking-lot" id="lot-F2">
+          <div class="slot">F2-1</div>
+          <div class="slot">F2-2</div>
+          <div class="slot">F2-3</div>
+          <div class="slot">F2-4</div>
+          <div class="slot">F2-5</div>
+          <div class="slot">F2-6</div>
+          <div class="slot">F2-7</div>
+          <div class="slot">F2-8</div>
+          <div class="divider-vertical v1"></div>
+          <div class="divider-vertical v2"></div>
+          <div class="divider-vertical v3"></div>
+          <div class="divider-horizontal h1"></div>
+          <div class="floor_name">F2</div>
+        </div>
+
+        <div class="parking-lot" id="lot-F3">
+          <div class="slot">F3-1</div>
+          <div class="slot">F3-2</div>
+          <div class="slot">F3-3</div>
+          <div class="slot">F3-4</div>
+          <div class="slot">F3-5</div>
+          <div class="slot">F3-6</div>
+          <div class="slot">F3-7</div>
+          <div class="slot">F3-8</div>
+          <div class="divider-vertical v1"></div>
+          <div class="divider-vertical v2"></div>
+          <div class="divider-vertical v3"></div>
+          <div class="divider-horizontal h1"></div>
+          <div class="floor_name">F3</div>
+        </div>
+
+        <!-- Floor Selector -->
+        <div class="floor-level">
+          <h3>Floor Level</h3>
+          <div class="floors">
+            <div class="fl" data-floor="G">G</div>
+            <div class="fl" data-floor="F1">F1</div>
+            <div class="fl" data-floor="F2">F2</div>
+            <div class="fl" data-floor="F3">F3</div>
+          </div>
+        </div>
+      </div>
+      <div class="box">
+        <h2>STATUS</h2>
+        <p id="datetime">Loading...</p>
+        <button onclick="generateCode()">Masuk → Dapatkan Kode</button>
+        <p>Kode Parkir Anda: <strong id="generated-code">-</strong></p>
+        <h2>Total Tariff</h2>
+        <input type="text" id="parking-code" placeholder="Input Code" />
+        <button onclick="checkTariff()">Cek Tarif</button>
+        <p id="parking-info">TIME SPENT: <br />TOTAL TARIFF :</p>
+
+        <h2>Main Gate</h2>
+        <p>Status: <span id="gate-status">Closed</span></p>
+        <button onclick="controlGate('open')">Open</button>
+        <button onclick="controlGate('close')">Close</button>
+      </div>
+    </div>
+
+    <script>
+      async function updateSlotStatus() {
+        try {
+          const response = await fetch("/get-slot-status");
+          const data = await response.json();
+
+          // Loop semua slot yang ada di respons
+          for (const [slotId, status] of Object.entries(data)) {
+            const element = document.getElementById(
+              `slot-${slotId.toLowerCase()}`
+            );
+            if (!element) continue;
+
+            element.classList.remove("occupied", "empty");
+
+            if (status === "occupied") {
+              element.classList.add("occupied");
+            } else {
+              element.classList.add("empty");
+            }
+          }
+        } catch (error) {
+          console.error("Gagal mengambil status slot:", error);
+        }
+      }
+
+      setInterval(updateSlotStatus, 2000);
+      window.onload = updateSlotStatus;
+
+      function updateDateTime() {
+        const now = new Date();
+        const date = now.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        const time = now.toLocaleTimeString("en-US", { hour12: false });
+        document.getElementById("datetime").innerHTML = `${date}<br>${time}`;
+      }
+
+      setInterval(updateDateTime, 1000);
+      updateDateTime();
+
+      function generateCode() {
+        fetch("/enter", { method: "POST" })
+          .then((res) => {
+            if (!res.ok) throw new Error("Gagal mendapatkan kode parkir");
+            return res.json();
+          })
+          .then((data) => {
+            document.getElementById("generated-code").innerText =
+              data.code || "-";
+          })
+          .catch((err) => {
+            alert("Gagal generate kode parkir!");
+            document.getElementById("generated-code").innerText = "-";
+            console.error(err);
+          });
+      }
+
+      function checkTariff() {
+        const code = document.getElementById("parking-code").value.trim();
+        if (!code) return alert("Masukkan kode parkir!");
+
+        fetch("/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              document.getElementById("parking-info").innerText = data.error;
+            } else {
+              document.getElementById(
+                "parking-info"
+              ).innerText = `TIME : ${data.time}\nTARIFF : ${data.tariff}`;
+            }
+          });
+      }
+
+      function controlGate(action) {
+        fetch("/gate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("gate-status").innerText = data.status;
+          });
+      }
+
+      function updateGateStatus() {
+        fetch("/status")
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("gate-status").innerText = data.gate;
+          });
+      }
+
+      setInterval(updateGateStatus, 3000);
+      updateGateStatus();
+
+      // Floor switching
+      const floorButtons = document.querySelectorAll(".fl");
+      const lots = document.querySelectorAll(".parking-lot");
+
+      floorButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const selected = btn.dataset.floor;
+          lots.forEach((lot) => {
+            lot.classList.toggle("active", lot.id === `lot-${selected}`);
+          });
+        });
+      });
+
+      // Show default floor
+      document.querySelector("#lot-G").classList.add("active");
+    </script>
+  </body>
+</html>
